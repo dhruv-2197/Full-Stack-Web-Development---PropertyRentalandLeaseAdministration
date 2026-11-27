@@ -16,8 +16,6 @@ property-rental-system/
 │   └── verify_screenshot8.sql    # Verification queries (SHOW TABLES, FKs, joined rows)
 ├── backend/                      # Spring Boot REST API (includes Maven Wrapper mvnw / mvnw.cmd)
 ├── frontend/                     # Angular SPA calling Spring Boot REST APIs
-├── postman/
-│   └── Property_Rental_API.postman_collection.json
 └── README.md
 ```
 
@@ -81,12 +79,6 @@ npm install
 npm start
 ```
 Open **http://localhost:4200** in your browser.
-
-### Step 4: Test APIs with Postman (Optional)
-
-1. Open Postman and click **Import**.
-2. Select `postman/Property_Rental_API.postman_collection.json`.
-3. Run the collection (or individual `GET`, `POST`, `PUT`, `DELETE` requests) against `http://localhost:8080/api`.
 
 ---
 
