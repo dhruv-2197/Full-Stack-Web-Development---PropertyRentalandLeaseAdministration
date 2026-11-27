@@ -158,13 +158,3 @@ erDiagram
 | **Tenants** | `GET/POST /api/tenants`, `GET/PUT/DELETE /api/tenants/{id}` | Unique `tenantCode`; blocks deleting tenant with lease or maintenance history (`409 Conflict`) |
 | **Leases** | `GET/POST /api/leases`, `GET/PUT/DELETE /api/leases/{id}` | Rejects overlapping `Active` leases for same unit (`409 Conflict`); auto-syncs unit status (`Occupied` / `Vacant`); validates `endDate >= startDate` (`400 Bad Request`) |
 | **Maintenance Requests** | `GET/POST /api/maintenance-requests`, `GET/PUT/DELETE /api/maintenance-requests/{id}` | Tracks workflow `Open` -> `Assigned` -> `In Progress` -> `Resolved` with priority and resolution notes |
-
----
-
-## Verification Scenarios
-
-1. Create a property, rental units, and register a tenant.
-2. Create an `Active` lease on a `Vacant` unit and verify the unit automatically updates to `Occupied`.
-3. Attempt to create an overlapping `Active` lease for the same unit and verify `409 Conflict` rejection.
-4. Create a maintenance request (`Open`) and progress it through `Assigned` -> `In Progress` -> `Resolved`.
-5. Verify occupancy %, vacant units, and upcoming lease-expiry alerts on `/dashboard`.
