@@ -1,6 +1,6 @@
 # Property Rental and Lease Administration System
 
-**Project Title:** 12. Property Rental and Lease Administration System  
+**Project Title:** Property Rental and Lease Administration System  
 **Domain:** Real Estate / Property Management  
 **Tech Stack:** Angular (Bootstrap 5) | Spring Boot (Java 17, Spring Data JPA, Bean Validation) | MySQL 8.0 (InnoDB)
 
