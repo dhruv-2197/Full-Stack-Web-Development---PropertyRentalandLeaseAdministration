@@ -1,0 +1,104 @@
+<div class="page-header">
+  <h1 class="page-title">{{ leaseId() ? 'Edit Lease' : 'New Lease' }}</h1>
+  <a routerLink="/leases" class="btn btn-outline-secondary btn-sm">Back</a>
+</div>
+
+<app-alert-banner [message]="error()" type="error" (dismissed)="error.set(null)" />
+
+<div class="card p-4">
+  @if (loading()) {
+    <div class="text-center py-4 text-muted small">Loading...</div>
+  } @else {
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <div class="section-label">Lease Parties</div>
+      <div class="row g-3 mb-4">
+        <div class="col-md-4">
+          <label class="form-label fw-medium">Lease Number *</label>
+          <input type="text" class="form-control" formControlName="leaseNumber" placeholder="LSE-2026-003" />
+          <app-field-error [control]="form.controls.leaseNumber" label="Lease Number" />
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label fw-medium">Rental Unit *</label>
+          <select class="form-select" formControlName="unitId">
+            <option [value]="0" disabled>Select unit</option>
+            @for (u of units(); track u.unitId) {
+              <option [value]="u.unitId">
+                {{ u.propertyName }} - {{ u.unitNumber }} ({{ u.unitStatus }})
+              </option>
+            }
+          </select>
+          @if (form.controls.unitId.touched && form.controls.unitId.errors?.['min']) {
+            <div class="text-danger small mt-1">Unit is required.</div>
+          }
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label fw-medium">Tenant *</label>
+          <select class="form-select" formControlName="tenantId">
+            <option [value]="0" disabled>Select tenant</option>
+            @for (t of tenants(); track t.tenantId) {
+              <option [value]="t.tenantId">{{ t.tenantCode }} - {{ t.fullName }}</option>
+            }
+          </select>
+          @if (form.controls.tenantId.touched && form.controls.tenantId.errors?.['min']) {
+            <div class="text-danger small mt-1">Tenant is required.</div>
+          }
+        </div>
+      </div>
+
+      <div class="section-label">Term &amp; Financials</div>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label fw-medium">Start Date *</label>
+          <input type="date" class="form-control" formControlName="startDate" />
+          <app-field-error [control]="form.controls.startDate" label="Start Date" />
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label fw-medium">End Date *</label>
+          <input type="date" class="form-control" formControlName="endDate" />
+          <app-field-error [control]="form.controls.endDate" label="End Date" />
+          @if (form.errors?.['dateRange'] && (form.controls.endDate.touched || form.controls.startDate.touched)) {
+            <div class="text-danger small mt-1">End date cannot be earlier than start date.</div>
+          }
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label fw-medium">Status *</label>
+          <select class="form-select" formControlName="leaseStatus">
+            <option value="Active">Active</option>
+            <option value="Pending">Pending</option>
+            <option value="Expired">Expired</option>
+            <option value="Terminated">Terminated</option>
+          </select>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label fw-medium">Monthly Rent *</label>
+          <div class="input-group">
+            <span class="input-group-text">$</span>
+            <input type="number" step="0.01" class="form-control" formControlName="monthlyRent" min="1" />
+          </div>
+          <app-field-error [control]="form.controls.monthlyRent" label="Monthly Rent" />
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label fw-medium">Deposit Amount *</label>
+          <div class="input-group">
+            <span class="input-group-text">$</span>
+            <input type="number" step="0.01" class="form-control" formControlName="depositAmount" min="0" />
+          </div>
+          <app-field-error [control]="form.controls.depositAmount" label="Deposit Amount" />
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-end gap-2 mt-4">
+        <a routerLink="/leases" class="btn btn-outline-secondary btn-sm">Cancel</a>
+        <button type="submit" class="btn btn-primary btn-sm" [disabled]="saving()">
+          {{ saving() ? 'Saving...' : 'Save' }}
+        </button>
+      </div>
+    </form>
+  }
+</div>

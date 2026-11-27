@@ -1,0 +1,99 @@
+<div class="page-header">
+  <h1 class="page-title">{{ requestId() ? 'Edit Request' : 'New Request' }}</h1>
+  <a routerLink="/maintenance" class="btn btn-outline-secondary btn-sm">Back</a>
+</div>
+
+<app-alert-banner [message]="error()" type="error" (dismissed)="error.set(null)" />
+
+<div class="card p-4">
+  @if (loading()) {
+    <div class="text-center py-4 text-muted small">Loading...</div>
+  } @else {
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label fw-medium">Rental Unit *</label>
+          <select class="form-select" formControlName="unitId">
+            <option [value]="0" disabled>Select unit</option>
+            @for (u of units(); track u.unitId) {
+              <option [value]="u.unitId">{{ u.propertyName }} - {{ u.unitNumber }}</option>
+            }
+          </select>
+          @if (form.controls.unitId.touched && form.controls.unitId.errors?.['min']) {
+            <div class="text-danger small mt-1">Unit is required.</div>
+          }
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label fw-medium">Tenant *</label>
+          <select class="form-select" formControlName="tenantId">
+            <option [value]="0" disabled>Select tenant</option>
+            @for (t of tenants(); track t.tenantId) {
+              <option [value]="t.tenantId">{{ t.tenantCode }} - {{ t.fullName }}</option>
+            }
+          </select>
+          @if (form.controls.tenantId.touched && form.controls.tenantId.errors?.['min']) {
+            <div class="text-danger small mt-1">Tenant is required.</div>
+          }
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label fw-medium">Request Date *</label>
+          <input type="date" class="form-control" formControlName="requestDate" />
+          <app-field-error [control]="form.controls.requestDate" label="Request Date" />
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label fw-medium">Category *</label>
+          <select class="form-select" formControlName="issueCategory">
+            <option value="Plumbing">Plumbing</option>
+            <option value="Electrical">Electrical</option>
+            <option value="HVAC">HVAC</option>
+            <option value="Appliance">Appliance</option>
+            <option value="Structural">Structural</option>
+            <option value="General">General</option>
+          </select>
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label fw-medium">Priority *</label>
+          <select class="form-select" formControlName="priority">
+            <option value="Low">Low</option>
+            <option value="Medium">Medium</option>
+            <option value="High">High</option>
+            <option value="Urgent">Urgent</option>
+          </select>
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label fw-medium">Status *</label>
+          <select class="form-select" formControlName="status">
+            <option value="Open">Open</option>
+            <option value="Assigned">Assigned</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Resolved">Resolved</option>
+          </select>
+        </div>
+
+        <div class="col-12">
+          <label class="form-label fw-medium">Description *</label>
+          <textarea class="form-control" rows="3" formControlName="description"></textarea>
+          <app-field-error [control]="form.controls.description" label="Description" />
+        </div>
+
+        <div class="col-12">
+          <label class="form-label fw-medium">Resolution Notes</label>
+          <input type="text" class="form-control" formControlName="resolutionNotes" />
+          <app-field-error [control]="form.controls.resolutionNotes" label="Resolution Notes" />
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-end gap-2 mt-4">
+        <a routerLink="/maintenance" class="btn btn-outline-secondary btn-sm">Cancel</a>
+        <button type="submit" class="btn btn-primary btn-sm" [disabled]="saving()">
+          {{ saving() ? 'Saving...' : 'Save' }}
+        </button>
+      </div>
+    </form>
+  }
+</div>

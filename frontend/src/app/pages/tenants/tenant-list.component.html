@@ -1,0 +1,68 @@
+<div class="page-header">
+  <h1 class="page-title">Tenants</h1>
+  <a routerLink="/tenants/new" class="btn btn-primary btn-sm">
+    <i class="bi bi-plus-lg me-1"></i>Add Tenant
+  </a>
+</div>
+
+<app-alert-banner [message]="error()" type="error" (dismissed)="error.set(null)" />
+<app-alert-banner [message]="success()" type="success" (dismissed)="success.set(null)" />
+
+<div class="row mb-3">
+  <div class="col-md-5">
+    <app-search-bar
+      placeholder="Search tenants..."
+      [(term)]="searchTerm"
+      (searched)="loadTenants($event)"
+    />
+  </div>
+</div>
+
+<app-data-table
+  [loading]="loading()"
+  [empty]="tenants().length === 0"
+  emptyMessage="No tenants."
+>
+  <thead table-head>
+    <tr>
+      <th>Tenant</th>
+      <th>Phone</th>
+      <th>Email</th>
+      <th>Address</th>
+      <th class="text-end">Actions</th>
+    </tr>
+  </thead>
+  <tbody table-body>
+    @for (t of tenants(); track t.tenantId) {
+      <tr>
+        <td>
+          <div class="fw-semibold">{{ t.fullName }}</div>
+          <div class="small text-muted">{{ t.tenantCode }}</div>
+        </td>
+        <td class="text-nowrap">{{ t.phone }}</td>
+        <td>{{ t.email }}</td>
+        <td class="small text-muted">{{ t.currentAddress || '-' }}</td>
+        <td class="text-end text-nowrap">
+          <a [routerLink]="['/tenants', t.tenantId]" class="btn btn-sm btn-outline-secondary btn-icon me-1" title="Details">
+            <i class="bi bi-eye"></i>
+          </a>
+          <a [routerLink]="['/tenants', t.tenantId, 'edit']" class="btn btn-sm btn-outline-primary btn-icon me-1" title="Edit">
+            <i class="bi bi-pencil"></i>
+          </a>
+          <button type="button" class="btn btn-sm btn-outline-danger btn-icon" (click)="pendingDelete.set(t)" title="Delete">
+            <i class="bi bi-trash"></i>
+          </button>
+        </td>
+      </tr>
+    }
+  </tbody>
+</app-data-table>
+
+<app-confirm-dialog
+  [open]="pendingDelete() !== null"
+  title="Delete Tenant"
+  [message]="'Delete ' + (pendingDelete()?.fullName ?? '') + '?'"
+  confirmText="Delete"
+  (confirmed)="confirmDelete()"
+  (cancelled)="pendingDelete.set(null)"
+/>

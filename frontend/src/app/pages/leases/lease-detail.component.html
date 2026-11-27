@@ -1,0 +1,57 @@
+<div class="page-header">
+  <h1 class="page-title">{{ lease()?.leaseNumber || 'Lease' }}</h1>
+  <div class="d-flex gap-2">
+    @if (lease(); as l) {
+      <a [routerLink]="['/leases', l.leaseId, 'edit']" class="btn btn-primary btn-sm">Edit</a>
+      @if (l.leaseStatus === 'Active') {
+        <button type="button" class="btn btn-outline-warning btn-sm" (click)="terminate()">Terminate</button>
+      }
+    }
+    <a routerLink="/leases" class="btn btn-outline-secondary btn-sm">Back</a>
+  </div>
+</div>
+
+<app-alert-banner [message]="error()" type="error" (dismissed)="error.set(null)" />
+<app-alert-banner [message]="success()" type="success" (dismissed)="success.set(null)" />
+
+@if (loading()) {
+  <div class="card p-4 text-center text-muted small">Loading...</div>
+} @else if (lease(); as l) {
+  <div class="card p-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <span class="text-muted small fw-medium">{{ l.propertyName }} &middot; Unit {{ l.unitNumber }}</span>
+      <app-status-badge [status]="l.leaseStatus" />
+    </div>
+
+    <div class="row g-3 border-top pt-3">
+      <div class="col-md-4">
+        <div class="kpi-label">Tenant</div>
+        <div class="fw-medium mt-1">
+          <a [routerLink]="['/tenants', l.tenantId]" class="text-decoration-none">
+            {{ l.tenantCode }} - {{ l.tenantName }}
+          </a>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="kpi-label">Unit</div>
+        <div class="fw-medium mt-1">
+          <a [routerLink]="['/units', l.unitId]" class="text-decoration-none">
+            {{ l.propertyName }} ({{ l.unitNumber }})
+          </a>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="kpi-label">Term</div>
+        <div class="fw-medium mt-1">{{ l.startDate }} &ndash; {{ l.endDate }}</div>
+      </div>
+      <div class="col-md-4">
+        <div class="kpi-label">Monthly Rent</div>
+        <div class="fw-medium mt-1">{{ l.monthlyRent | currency: 'USD' }}</div>
+      </div>
+      <div class="col-md-4">
+        <div class="kpi-label">Security Deposit</div>
+        <div class="fw-medium mt-1">{{ l.depositAmount | currency: 'USD' }}</div>
+      </div>
+    </div>
+  </div>
+}

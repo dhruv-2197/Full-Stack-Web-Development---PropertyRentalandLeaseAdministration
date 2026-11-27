@@ -1,0 +1,130 @@
+<div class="page-header">
+  <h1 class="page-title">Dashboard</h1>
+  <div class="d-flex gap-2">
+    <a routerLink="/leases/new" class="btn btn-primary btn-sm">
+      <i class="bi bi-plus-lg me-1"></i>New Lease
+    </a>
+    <a routerLink="/maintenance/new" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-wrench me-1"></i>Log Request
+    </a>
+  </div>
+</div>
+
+<app-alert-banner [message]="error()" type="error" (dismissed)="error.set(null)" />
+
+<div class="row g-3 mb-4">
+  <div class="col-sm-6 col-lg-3">
+    <div class="card kpi-card h-100">
+      <div class="kpi-label">Occupancy</div>
+      <div class="d-flex align-items-baseline justify-content-between mt-1">
+        <div class="stat-card-value">{{ occupancyPercent() }}%</div>
+        <span class="small text-muted">{{ occupiedUnitsCount() }} / {{ units().length }} units</span>
+      </div>
+      <div class="progress mt-2" style="height: 5px;">
+        <div class="progress-bar bg-primary" [style.width.%]="occupancyPercent()"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-lg-3">
+    <div class="card kpi-card h-100">
+      <div class="kpi-label">Vacant Units</div>
+      <div class="stat-card-value text-success mt-1">{{ vacantUnits().length }}</div>
+      <div class="small text-muted mt-1">{{ properties().length }} properties</div>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-lg-3">
+    <div class="card kpi-card h-100">
+      <div class="kpi-label">Monthly Rent Roll</div>
+      <div class="stat-card-value mt-1">{{ monthlyRentRoll() | currency: 'USD' : 'symbol' : '1.0-0' }}</div>
+      <div class="small text-muted mt-1">{{ expiringSoonLeases().length }} expiring within 45d</div>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-lg-3">
+    <div class="card kpi-card h-100">
+      <div class="kpi-label">Open Maintenance</div>
+      <div class="stat-card-value text-danger mt-1">{{ openMaintenanceCount() }}</div>
+      <div class="small text-muted mt-1">{{ tenants().length }} tenants</div>
+    </div>
+  </div>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-2">
+  <h2 class="h6 fw-semibold mb-0">Leases Expiring Soon</h2>
+  <button class="btn btn-sm btn-outline-secondary btn-icon" type="button" (click)="loadDashboard()" title="Refresh">
+    <i class="bi bi-arrow-clockwise"></i>
+  </button>
+</div>
+
+<div class="mb-4">
+  <app-data-table
+    [loading]="loading()"
+    [empty]="expiringSoonLeases().length === 0"
+    emptyMessage="No leases expiring within 45 days."
+  >
+    <thead table-head>
+      <tr>
+        <th>Lease</th>
+        <th>Unit</th>
+        <th>Tenant</th>
+        <th>End Date</th>
+        <th>Remaining</th>
+        <th>Rent</th>
+        <th class="text-end"></th>
+      </tr>
+    </thead>
+    <tbody table-body>
+      @for (lease of expiringSoonLeases(); track lease.leaseId) {
+        <tr>
+          <td class="fw-semibold">{{ lease.leaseNumber }}</td>
+          <td>{{ lease.propertyName }} &middot; {{ lease.unitNumber }}</td>
+          <td>{{ lease.tenantName }}</td>
+          <td class="text-nowrap">{{ lease.endDate }}</td>
+          <td><span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle">{{ daysRemaining(lease.endDate) }}d</span></td>
+          <td>{{ lease.monthlyRent | currency: 'USD' }}</td>
+          <td class="text-end">
+            <a [routerLink]="['/leases', lease.leaseId]" class="btn btn-sm btn-outline-primary">View</a>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </app-data-table>
+</div>
+
+<h2 class="h6 fw-semibold mb-2">Vacant Units</h2>
+<app-data-table
+  [loading]="loading()"
+  [empty]="vacantUnits().length === 0"
+  emptyMessage="No vacant units."
+>
+  <thead table-head>
+    <tr>
+      <th>Property</th>
+      <th>Unit</th>
+      <th>Floor</th>
+      <th>Bedrooms</th>
+      <th>Rent</th>
+      <th>Status</th>
+      <th class="text-end"></th>
+    </tr>
+  </thead>
+  <tbody table-body>
+    @for (unit of vacantUnits(); track unit.unitId) {
+      <tr>
+        <td class="fw-semibold">{{ unit.propertyName }}</td>
+        <td>{{ unit.unitNumber }}</td>
+        <td>{{ unit.floor }}</td>
+        <td>{{ unit.bedrooms }} BR</td>
+        <td>{{ unit.monthlyRent | currency: 'USD' }}</td>
+        <td><app-status-badge [status]="unit.unitStatus" /></td>
+        <td class="text-end">
+          <a routerLink="/leases/new" [queryParams]="{ unitId: unit.unitId }" class="btn btn-sm btn-outline-success">
+            Lease
+          </a>
+        </td>
+      </tr>
+    }
+  </tbody>
+</app-data-table>

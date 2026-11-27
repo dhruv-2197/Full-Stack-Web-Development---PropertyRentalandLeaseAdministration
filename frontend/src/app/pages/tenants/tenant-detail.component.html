@@ -1,0 +1,72 @@
+<div class="page-header">
+  <h1 class="page-title">{{ tenant()?.fullName || 'Tenant' }}</h1>
+  <div class="d-flex gap-2">
+    @if (tenant(); as t) {
+      <a [routerLink]="['/tenants', t.tenantId, 'edit']" class="btn btn-outline-primary btn-sm">Edit</a>
+      <a routerLink="/leases/new" [queryParams]="{ tenantId: t.tenantId }" class="btn btn-primary btn-sm">New Lease</a>
+    }
+    <a routerLink="/tenants" class="btn btn-outline-secondary btn-sm">Back</a>
+  </div>
+</div>
+
+<app-alert-banner [message]="error()" type="error" (dismissed)="error.set(null)" />
+
+@if (loading()) {
+  <div class="card p-4 text-center text-muted small">Loading...</div>
+} @else if (tenant(); as t) {
+  <div class="card p-4 mb-4">
+    <div class="text-muted small fw-medium mb-3">{{ t.tenantCode }}</div>
+    <div class="row g-3 border-top pt-3">
+      <div class="col-md-4">
+        <div class="kpi-label">Phone</div>
+        <div class="fw-medium mt-1">{{ t.phone }}</div>
+      </div>
+      <div class="col-md-4">
+        <div class="kpi-label">Email</div>
+        <div class="fw-medium mt-1">{{ t.email }}</div>
+      </div>
+      <div class="col-md-4">
+        <div class="kpi-label">Address</div>
+        <div class="fw-medium mt-1">{{ t.currentAddress || '-' }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card overflow-hidden">
+    <div class="px-4 py-3 border-bottom fw-semibold small">Leases ({{ leases().length }})</div>
+    @if (leases().length === 0) {
+      <div class="p-4 text-muted small">No leases.</div>
+    } @else {
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Lease</th>
+              <th>Unit</th>
+              <th>Term</th>
+              <th>Rent</th>
+              <th>Status</th>
+              <th class="text-end"></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (l of leases(); track l.leaseId) {
+              <tr>
+                <td class="fw-semibold">{{ l.leaseNumber }}</td>
+                <td>{{ l.propertyName }} &middot; {{ l.unitNumber }}</td>
+                <td class="text-nowrap">{{ l.startDate }} &ndash; {{ l.endDate }}</td>
+                <td>{{ l.monthlyRent | currency: 'USD' }}</td>
+                <td><app-status-badge [status]="l.leaseStatus" /></td>
+                <td class="text-end">
+                  <a [routerLink]="['/leases', l.leaseId]" class="btn btn-sm btn-outline-secondary btn-icon" title="Details">
+                    <i class="bi bi-eye"></i>
+                  </a>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+}

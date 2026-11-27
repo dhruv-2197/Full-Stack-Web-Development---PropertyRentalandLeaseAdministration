@@ -1,0 +1,110 @@
+{
+  "info": {
+    "name": "Property Rental and Lease Administration API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080/api"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. GET All Properties",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/properties"
+      }
+    },
+    {
+      "name": "2. POST Create Property",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"propertyCode\": \"PRP-103\",\n  \"propertyName\": \"Cedar Heights\",\n  \"propertyType\": \"Residential\",\n  \"address\": \"900 Cedar Road\",\n  \"city\": \"Denver\",\n  \"managerName\": \"John Miller\",\n  \"active\": true\n}"
+        },
+        "url": "{{baseUrl}}/properties"
+      }
+    },
+    {
+      "name": "3. GET All Rental Units",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/units"
+      }
+    },
+    {
+      "name": "4. POST Create Valid Lease (Vacant Unit -> Occupied)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"leaseNumber\": \"LSE-2026-003\",\n  \"unitId\": 3,\n  \"tenantId\": 3,\n  \"startDate\": \"2026-12-01\",\n  \"endDate\": \"2027-11-30\",\n  \"monthlyRent\": 1750.00,\n  \"depositAmount\": 3500.00,\n  \"leaseStatus\": \"Active\"\n}"
+        },
+        "url": "{{baseUrl}}/leases"
+      }
+    },
+    {
+      "name": "5. POST Overlapping Lease (Expected 409 Conflict)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"leaseNumber\": \"LSE-2026-999\",\n  \"unitId\": 1,\n  \"tenantId\": 3,\n  \"startDate\": \"2026-11-25\",\n  \"endDate\": \"2027-05-01\",\n  \"monthlyRent\": 1700.00,\n  \"depositAmount\": 3400.00,\n  \"leaseStatus\": \"Active\"\n}"
+        },
+        "url": "{{baseUrl}}/leases"
+      }
+    },
+    {
+      "name": "6. PUT Update Maintenance Request (Resolve)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"unitId\": 1,\n  \"tenantId\": 1,\n  \"requestDate\": \"2026-11-18\",\n  \"issueCategory\": \"Plumbing\",\n  \"description\": \"Kitchen sink faucet is dripping continuously.\",\n  \"priority\": \"Medium\",\n  \"status\": \"Resolved\",\n  \"resolutionNotes\": \"Replaced faucet cartridge and verified no leak.\"\n}"
+        },
+        "url": "{{baseUrl}}/maintenance-requests/1"
+      }
+    },
+    {
+      "name": "7. DELETE Tenant With Lease History (Expected 409 Conflict)",
+      "request": {
+        "method": "DELETE",
+        "url": "{{baseUrl}}/tenants/1"
+      }
+    },
+    {
+      "name": "8. DELETE Unlinked Property (Use Created ID e.g. 3)",
+      "request": {
+        "method": "DELETE",
+        "url": "{{baseUrl}}/properties/3"
+      }
+    }
+  ]
+}

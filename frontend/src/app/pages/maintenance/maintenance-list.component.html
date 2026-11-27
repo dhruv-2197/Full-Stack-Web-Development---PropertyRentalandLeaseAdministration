@@ -1,0 +1,94 @@
+<div class="page-header">
+  <h1 class="page-title">Maintenance</h1>
+  <a routerLink="/maintenance/new" class="btn btn-primary btn-sm">
+    <i class="bi bi-plus-lg me-1"></i>Log Request
+  </a>
+</div>
+
+<app-alert-banner [message]="error()" type="error" (dismissed)="error.set(null)" />
+<app-alert-banner [message]="success()" type="success" (dismissed)="success.set(null)" />
+
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+  <div class="d-flex flex-wrap gap-2 flex-grow-1" style="max-width: 520px;">
+    <div class="flex-grow-1">
+      <app-search-bar
+        placeholder="Search requests..."
+        [(term)]="searchTerm"
+        (searched)="searchTerm.set($event)"
+      />
+    </div>
+    <select class="form-select" style="max-width: 150px;" [(ngModel)]="priorityFilter">
+      <option value="All">All Priorities</option>
+      <option value="Low">Low</option>
+      <option value="Medium">Medium</option>
+      <option value="High">High</option>
+      <option value="Urgent">Urgent</option>
+    </select>
+  </div>
+
+  <div class="filter-pills">
+    @for (st of ['All', 'Open', 'Assigned', 'In Progress', 'Resolved']; track st) {
+      <button type="button" class="filter-pill" [class.active]="statusFilter() === st" (click)="statusFilter.set(st)">
+        {{ st }}
+      </button>
+    }
+  </div>
+</div>
+
+<app-data-table
+  [loading]="loading()"
+  [empty]="filteredRequests().length === 0"
+  emptyMessage="No maintenance requests."
+>
+  <thead table-head>
+    <tr>
+      <th>Date</th>
+      <th>Unit</th>
+      <th>Tenant</th>
+      <th>Issue</th>
+      <th>Priority</th>
+      <th>Status</th>
+      <th class="text-end">Actions</th>
+    </tr>
+  </thead>
+  <tbody table-body>
+    @for (r of filteredRequests(); track r.requestId) {
+      <tr>
+        <td class="text-nowrap small">{{ r.requestDate }}</td>
+        <td class="fw-semibold text-nowrap">{{ r.propertyName }} &middot; {{ r.unitNumber }}</td>
+        <td class="text-nowrap">{{ r.tenantName }}</td>
+        <td>
+          <div class="fw-semibold">{{ r.issueCategory }}</div>
+          <div class="small text-muted">{{ r.description }}</div>
+          @if (r.resolutionNotes) {
+            <div class="small text-success mt-1">{{ r.resolutionNotes }}</div>
+          }
+        </td>
+        <td><app-status-badge [status]="r.priority" /></td>
+        <td><app-status-badge [status]="r.status" /></td>
+        <td class="text-end text-nowrap">
+          @if (getNextStatus(r.status); as nextStatus) {
+            <button type="button" class="btn btn-sm btn-outline-success me-1" (click)="advanceStatus(r)">
+              {{ nextStatus }}
+            </button>
+          }
+          <a [routerLink]="['/maintenance', r.requestId, 'edit']" class="btn btn-sm btn-outline-primary btn-icon me-1" title="Edit">
+            <i class="bi bi-pencil"></i>
+          </a>
+          <button type="button" class="btn btn-sm btn-outline-danger btn-icon" (click)="pendingDelete.set(r)" title="Delete">
+            <i class="bi bi-trash"></i>
+          </button>
+        </td>
+      </tr>
+    }
+  </tbody>
+</app-data-table>
+
+<app-confirm-dialog
+  [open]="pendingDelete() !== null"
+  title="Delete Request"
+  [message]="'Delete request #' + (pendingDelete()?.requestId ?? '') + '?'"
+  confirmText="Delete"
+  (confirmed)="confirmDelete()"
+  (cancelled)="pendingDelete.set(null)"
+/>

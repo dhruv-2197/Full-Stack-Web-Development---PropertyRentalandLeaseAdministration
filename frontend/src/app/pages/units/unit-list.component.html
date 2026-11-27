@@ -1,0 +1,85 @@
+<div class="page-header">
+  <h1 class="page-title">Rental Units</h1>
+  <a routerLink="/units/new" class="btn btn-primary btn-sm">
+    <i class="bi bi-plus-lg me-1"></i>Add Unit
+  </a>
+</div>
+
+<app-alert-banner [message]="error()" type="error" (dismissed)="error.set(null)" />
+<app-alert-banner [message]="success()" type="success" (dismissed)="success.set(null)" />
+
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+  <div class="d-flex flex-wrap gap-2 flex-grow-1" style="max-width: 560px;">
+    <div class="flex-grow-1">
+      <app-search-bar
+        placeholder="Search units..."
+        [(term)]="searchTerm"
+        (searched)="searchTerm.set($event)"
+      />
+    </div>
+    <select class="form-select" style="max-width: 210px;" [(ngModel)]="propertyFilter">
+      <option [value]="0">All Properties</option>
+      @for (p of properties(); track p.propertyId) {
+        <option [value]="p.propertyId">{{ p.propertyName }}</option>
+      }
+    </select>
+  </div>
+
+  <div class="filter-pills">
+    @for (st of ['All', 'Vacant', 'Occupied', 'Maintenance', 'Inactive']; track st) {
+      <button type="button" class="filter-pill" [class.active]="statusFilter() === st" (click)="statusFilter.set(st)">
+        {{ st }}
+      </button>
+    }
+  </div>
+</div>
+
+<app-data-table
+  [loading]="loading()"
+  [empty]="filteredUnits().length === 0"
+  emptyMessage="No units."
+>
+  <thead table-head>
+    <tr>
+      <th>Unit</th>
+      <th>Property</th>
+      <th>Floor</th>
+      <th>Bedrooms</th>
+      <th>Rent</th>
+      <th>Status</th>
+      <th class="text-end">Actions</th>
+    </tr>
+  </thead>
+  <tbody table-body>
+    @for (u of filteredUnits(); track u.unitId) {
+      <tr>
+        <td class="fw-semibold">{{ u.unitNumber }}</td>
+        <td>{{ u.propertyName || ('Property #' + u.propertyId) }}</td>
+        <td>{{ u.floor }}</td>
+        <td>{{ u.bedrooms }} BR</td>
+        <td>{{ u.monthlyRent | currency: 'USD' }}</td>
+        <td><app-status-badge [status]="u.unitStatus" /></td>
+        <td class="text-end text-nowrap">
+          <a [routerLink]="['/units', u.unitId]" class="btn btn-sm btn-outline-secondary btn-icon me-1" title="Details">
+            <i class="bi bi-eye"></i>
+          </a>
+          <a [routerLink]="['/units', u.unitId, 'edit']" class="btn btn-sm btn-outline-primary btn-icon me-1" title="Edit">
+            <i class="bi bi-pencil"></i>
+          </a>
+          <button type="button" class="btn btn-sm btn-outline-danger btn-icon" (click)="pendingDelete.set(u)" title="Delete">
+            <i class="bi bi-trash"></i>
+          </button>
+        </td>
+      </tr>
+    }
+  </tbody>
+</app-data-table>
+
+<app-confirm-dialog
+  [open]="pendingDelete() !== null"
+  title="Delete Unit"
+  [message]="'Delete unit ' + (pendingDelete()?.unitNumber ?? '') + '?'"
+  confirmText="Delete"
+  (confirmed)="confirmDelete()"
+  (cancelled)="pendingDelete.set(null)"
+/>

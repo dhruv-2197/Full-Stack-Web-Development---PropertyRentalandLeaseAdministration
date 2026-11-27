@@ -1,0 +1,107 @@
+<div class="page-header">
+  <h1 class="page-title">{{ unit() ? ('Unit ' + unit()!.unitNumber) : 'Unit Details' }}</h1>
+  <div class="d-flex gap-2">
+    @if (unit(); as u) {
+      <a [routerLink]="['/units', u.unitId, 'edit']" class="btn btn-outline-primary btn-sm">Edit</a>
+      <a routerLink="/leases/new" [queryParams]="{ unitId: u.unitId }" class="btn btn-primary btn-sm">New Lease</a>
+    }
+    <a routerLink="/units" class="btn btn-outline-secondary btn-sm">Back</a>
+  </div>
+</div>
+
+<app-alert-banner [message]="error()" type="error" (dismissed)="error.set(null)" />
+
+@if (loading()) {
+  <div class="card p-4 text-center text-muted small">Loading...</div>
+} @else if (unit(); as u) {
+  <div class="card p-4 mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <span class="text-muted small fw-medium">{{ u.propertyName }} &middot; {{ u.city }}</span>
+      <app-status-badge [status]="u.unitStatus" />
+    </div>
+    <div class="row g-3 border-top pt-3">
+      <div class="col-md-4">
+        <div class="kpi-label">Floor</div>
+        <div class="fw-medium mt-1">{{ u.floor }}</div>
+      </div>
+      <div class="col-md-4">
+        <div class="kpi-label">Bedrooms</div>
+        <div class="fw-medium mt-1">{{ u.bedrooms }} BR</div>
+      </div>
+      <div class="col-md-4">
+        <div class="kpi-label">Monthly Rent</div>
+        <div class="fw-medium mt-1">{{ u.monthlyRent | currency: 'USD' }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card overflow-hidden mb-4">
+    <div class="px-4 py-3 border-bottom fw-semibold small">Leases ({{ leases().length }})</div>
+    @if (leases().length === 0) {
+      <div class="p-4 text-muted small">No leases.</div>
+    } @else {
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Lease</th>
+              <th>Tenant</th>
+              <th>Term</th>
+              <th>Rent</th>
+              <th>Status</th>
+              <th class="text-end"></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (l of leases(); track l.leaseId) {
+              <tr>
+                <td class="fw-semibold">{{ l.leaseNumber }}</td>
+                <td>{{ l.tenantName }}</td>
+                <td class="text-nowrap">{{ l.startDate }} &ndash; {{ l.endDate }}</td>
+                <td>{{ l.monthlyRent | currency: 'USD' }}</td>
+                <td><app-status-badge [status]="l.leaseStatus" /></td>
+                <td class="text-end">
+                  <a [routerLink]="['/leases', l.leaseId]" class="btn btn-sm btn-outline-secondary btn-icon" title="View">
+                    <i class="bi bi-eye"></i>
+                  </a>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+
+  <div class="card overflow-hidden">
+    <div class="px-4 py-3 border-bottom fw-semibold small">Maintenance ({{ requests().length }})</div>
+    @if (requests().length === 0) {
+      <div class="p-4 text-muted small">No maintenance requests.</div>
+    } @else {
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Category</th>
+              <th>Priority</th>
+              <th>Status</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of requests(); track r.requestId) {
+              <tr>
+                <td class="text-nowrap">{{ r.requestDate }}</td>
+                <td class="fw-semibold">{{ r.issueCategory }}</td>
+                <td><app-status-badge [status]="r.priority" /></td>
+                <td><app-status-badge [status]="r.status" /></td>
+                <td class="small text-muted">{{ r.resolutionNotes || r.description }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+}

@@ -1,0 +1,73 @@
+<div class="page-header">
+  <h1 class="page-title">{{ unitId() ? 'Edit Unit' : 'New Unit' }}</h1>
+  <a routerLink="/units" class="btn btn-outline-secondary btn-sm">Back</a>
+</div>
+
+<app-alert-banner [message]="error()" type="error" (dismissed)="error.set(null)" />
+
+<div class="card p-4">
+  @if (loading()) {
+    <div class="text-center py-4 text-muted small">Loading...</div>
+  } @else {
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label fw-medium">Property *</label>
+          <select class="form-select" formControlName="propertyId">
+            <option [value]="0" disabled>Select property</option>
+            @for (p of properties(); track p.propertyId) {
+              <option [value]="p.propertyId">{{ p.propertyCode }} - {{ p.propertyName }}</option>
+            }
+          </select>
+          @if (form.controls.propertyId.touched && form.controls.propertyId.errors?.['min']) {
+            <div class="text-danger small mt-1">Property is required.</div>
+          }
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label fw-medium">Unit Number *</label>
+          <input type="text" class="form-control" formControlName="unitNumber" placeholder="A-202" />
+          <app-field-error [control]="form.controls.unitNumber" label="Unit Number" />
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label fw-medium">Floor *</label>
+          <input type="number" class="form-control" formControlName="floor" min="0" />
+          <app-field-error [control]="form.controls.floor" label="Floor" />
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label fw-medium">Bedrooms *</label>
+          <input type="number" class="form-control" formControlName="bedrooms" min="0" />
+          <app-field-error [control]="form.controls.bedrooms" label="Bedrooms" />
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label fw-medium">Monthly Rent *</label>
+          <div class="input-group">
+            <span class="input-group-text">$</span>
+            <input type="number" step="0.01" class="form-control" formControlName="monthlyRent" min="1" />
+          </div>
+          <app-field-error [control]="form.controls.monthlyRent" label="Monthly Rent" />
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label fw-medium">Status *</label>
+          <select class="form-select" formControlName="unitStatus">
+            <option value="Vacant">Vacant</option>
+            <option value="Occupied">Occupied</option>
+            <option value="Maintenance">Maintenance</option>
+            <option value="Inactive">Inactive</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-end gap-2 mt-4">
+        <a routerLink="/units" class="btn btn-outline-secondary btn-sm">Cancel</a>
+        <button type="submit" class="btn btn-primary btn-sm" [disabled]="saving()">
+          {{ saving() ? 'Saving...' : 'Save' }}
+        </button>
+      </div>
+    </form>
+  }
+</div>

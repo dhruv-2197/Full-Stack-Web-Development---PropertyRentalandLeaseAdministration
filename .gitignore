@@ -1,0 +1,11 @@
+# Secrets & local report files (contains student IDs / report builder scripts)
+application-local.properties
+.env
+report/
+
+# Build artifacts & dependencies
+backend/target/
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+__pycache__/

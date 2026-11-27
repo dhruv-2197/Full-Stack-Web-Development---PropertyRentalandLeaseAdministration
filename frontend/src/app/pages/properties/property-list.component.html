@@ -1,0 +1,73 @@
+<div class="page-header">
+  <h1 class="page-title">Properties</h1>
+  <a routerLink="/properties/new" class="btn btn-primary btn-sm">
+    <i class="bi bi-plus-lg me-1"></i>Add Property
+  </a>
+</div>
+
+<app-alert-banner [message]="error()" type="error" (dismissed)="error.set(null)" />
+<app-alert-banner [message]="success()" type="success" (dismissed)="success.set(null)" />
+
+<div class="row mb-3">
+  <div class="col-md-5">
+    <app-search-bar
+      placeholder="Search properties..."
+      [(term)]="searchTerm"
+      (searched)="loadProperties($event)"
+    />
+  </div>
+</div>
+
+<app-data-table
+  [loading]="loading()"
+  [empty]="properties().length === 0"
+  emptyMessage="No properties."
+>
+  <thead table-head>
+    <tr>
+      <th>Property</th>
+      <th>Type</th>
+      <th>City</th>
+      <th>Manager</th>
+      <th>Status</th>
+      <th class="text-end">Actions</th>
+    </tr>
+  </thead>
+  <tbody table-body>
+    @for (p of properties(); track p.propertyId) {
+      <tr>
+        <td>
+          <div class="fw-semibold">{{ p.propertyName }}</div>
+          <div class="small text-muted">{{ p.propertyCode }}</div>
+        </td>
+        <td>{{ p.propertyType }}</td>
+        <td>{{ p.city }}</td>
+        <td>{{ p.managerName }}</td>
+        <td><app-status-badge [status]="p.active" /></td>
+        <td class="text-end text-nowrap">
+          <a [routerLink]="['/properties', p.propertyId]" class="btn btn-sm btn-outline-secondary btn-icon me-1" title="Details">
+            <i class="bi bi-eye"></i>
+          </a>
+          <a [routerLink]="['/properties', p.propertyId, 'edit']" class="btn btn-sm btn-outline-primary btn-icon me-1" title="Edit">
+            <i class="bi bi-pencil"></i>
+          </a>
+          <button type="button" class="btn btn-sm btn-outline-warning btn-icon me-1" (click)="toggleActive(p)" [title]="p.active ? 'Deactivate' : 'Activate'">
+            <i class="bi bi-power"></i>
+          </button>
+          <button type="button" class="btn btn-sm btn-outline-danger btn-icon" (click)="pendingDelete.set(p)" title="Delete">
+            <i class="bi bi-trash"></i>
+          </button>
+        </td>
+      </tr>
+    }
+  </tbody>
+</app-data-table>
+
+<app-confirm-dialog
+  [open]="pendingDelete() !== null"
+  title="Delete Property"
+  [message]="'Delete ' + (pendingDelete()?.propertyCode ?? '') + '?'"
+  confirmText="Delete"
+  (confirmed)="confirmDelete()"
+  (cancelled)="pendingDelete.set(null)"
+/>
